@@ -15,7 +15,7 @@ func ParseVersionFile(versionPath string) (string, error) {
 		return "", stacktrace.Propagate(err, "error reading version file")
 	}
 	version := string(dat)
-	version = strings.Trim(strings.Trim(version, "\n"), " ")
+	version = strings.Trim(strings.Trim(version, "\r\n"), " ")
 	// regex pulled from official https://github.com/sindresorhus/semver-regex
 	semverRegex := `^v?(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?$`
 	match, err := regexp.MatchString(semverRegex, version)
