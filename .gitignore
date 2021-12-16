@@ -2,7 +2,6 @@
 *.o
 *.a
 *.so
-api-service
 
 # Folders
 _obj
