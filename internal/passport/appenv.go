@@ -11,6 +11,7 @@ type AppEnv struct {
 	Version   string
 	Env       string
 	Port      string
+	BetStore  models.BetStorage
 	UserStore models.UserStorage
 }
 
@@ -24,6 +25,7 @@ func CreateContextForTestSetup() AppEnv {
 		Env:       "LOCAL",
 		Port:      "3001",
 		UserStore: NewUserService(CreateMockDataSet()),
+		BetStore:  NewBetService(CreateMockBets()),
 	}
 	return appEnv
 }
