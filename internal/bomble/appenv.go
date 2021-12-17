@@ -8,11 +8,12 @@ import (
 
 // AppEnv holds application configuration data
 type AppEnv struct {
-	Render   *render.Render
-	Version  string
-	Env      string
-	Port     string
-	BetStore models.BetStorage
+	Render      *render.Render
+	Version     string
+	Env         string
+	Port        string
+	PlayerStore models.PlayerStorage
+	BetStore    models.BetStorage
 }
 
 // CreateContextForTestSetup initialises an application context struct

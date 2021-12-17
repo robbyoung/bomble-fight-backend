@@ -1,9 +1,11 @@
 package bomble
 
 import (
+	"encoding/json"
 	"net/http"
 	"strconv"
 
+	"bomble-fight/internal/bomble/models"
 	"bomble-fight/pkg/health"
 	"bomble-fight/pkg/status"
 
@@ -32,6 +34,46 @@ func HealthcheckHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv)
 		Version: appEnv.Version,
 	}
 	appEnv.Render.JSON(w, http.StatusOK, check)
+}
+
+func AddPlayerHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	decoder := json.NewDecoder(req.Body)
+	var p models.Player
+	err := decoder.Decode(&p)
+	if err != nil {
+		response := status.Response{
+			Status:  strconv.Itoa(http.StatusBadRequest),
+			Message: "malformed player object",
+		}
+		log.WithFields(log.Fields{
+			"env":    appEnv.Env,
+			"status": http.StatusBadRequest,
+		}).Error("malformed player object")
+		appEnv.Render.JSON(w, http.StatusBadRequest, response)
+		return
+	}
+	p, _ = appEnv.PlayerStore.AddPlayer(p)
+	appEnv.Render.JSON(w, http.StatusCreated, p)
+}
+
+func GetPlayersHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	list, err := appEnv.PlayerStore.GetPlayers()
+	if err != nil {
+		response := status.Response{
+			Status:  strconv.Itoa(http.StatusNotFound),
+			Message: "can't find any players",
+		}
+		log.WithFields(log.Fields{
+			"env":    appEnv.Env,
+			"status": http.StatusNotFound,
+		}).Error("Can't find any players")
+		appEnv.Render.JSON(w, http.StatusNotFound, response)
+		return
+	}
+	responseObject := make(map[string]interface{})
+	responseObject["players"] = list
+	responseObject["count"] = len(list)
+	appEnv.Render.JSON(w, http.StatusOK, responseObject)
 }
 
 func GetBetsHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
