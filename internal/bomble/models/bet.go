@@ -9,8 +9,4 @@ type Bet struct {
 
 type BetStorage interface {
 	GetBets() ([]Bet, error)
-	// GetUser(i int) (User, error)
-	// AddUser(u User) (User, error)
-	// UpdateUser(u User) (User, error)
-	// DeleteUser(i int) error
 }

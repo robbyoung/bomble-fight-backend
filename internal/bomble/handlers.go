@@ -1,16 +1,12 @@
 package bomble
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
-
-	models "bomble-fight/internal/bomble/models"
 
 	"bomble-fight/pkg/health"
 	"bomble-fight/pkg/status"
 
-	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -38,140 +34,22 @@ func HealthcheckHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv)
 	appEnv.Render.JSON(w, http.StatusOK, check)
 }
 
-// ListUsersHandler returns a list of users
-func ListUsersHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
-	list, err := appEnv.UserStore.ListUsers()
+func GetBetsHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	list, err := appEnv.BetStore.GetBets()
 	if err != nil {
 		response := status.Response{
 			Status:  strconv.Itoa(http.StatusNotFound),
-			Message: "can't find any users",
+			Message: "can't find any bets",
 		}
 		log.WithFields(log.Fields{
 			"env":    appEnv.Env,
 			"status": http.StatusNotFound,
-		}).Error("Can't find any users")
+		}).Error("Can't find any bets")
 		appEnv.Render.JSON(w, http.StatusNotFound, response)
 		return
 	}
 	responseObject := make(map[string]interface{})
-	responseObject["users"] = list
+	responseObject["bets"] = list
 	responseObject["count"] = len(list)
 	appEnv.Render.JSON(w, http.StatusOK, responseObject)
-}
-
-// GetUserHandler returns a user object
-func GetUserHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
-	vars := mux.Vars(req)
-	uid, _ := strconv.Atoi(vars["uid"])
-	user, err := appEnv.UserStore.GetUser(uid)
-	if err != nil {
-		response := status.Response{
-			Status:  strconv.Itoa(http.StatusNotFound),
-			Message: "can't find user",
-		}
-		log.WithFields(log.Fields{
-			"env":    appEnv.Env,
-			"status": http.StatusNotFound,
-		}).Error("Can't find user")
-		appEnv.Render.JSON(w, http.StatusNotFound, response)
-		return
-	}
-	appEnv.Render.JSON(w, http.StatusOK, user)
-}
-
-// CreateUserHandler adds a new user
-func CreateUserHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
-	decoder := json.NewDecoder(req.Body)
-	var u models.User
-	err := decoder.Decode(&u)
-	if err != nil {
-		response := status.Response{
-			Status:  strconv.Itoa(http.StatusBadRequest),
-			Message: "malformed user object",
-		}
-		log.WithFields(log.Fields{
-			"env":    appEnv.Env,
-			"status": http.StatusBadRequest,
-		}).Error("malformed user object")
-		appEnv.Render.JSON(w, http.StatusBadRequest, response)
-		return
-	}
-	user := models.User{
-		ID:              -1,
-		FirstName:       u.FirstName,
-		LastName:        u.LastName,
-		DateOfBirth:     u.DateOfBirth,
-		LocationOfBirth: u.LocationOfBirth,
-	}
-	user, _ = appEnv.UserStore.AddUser(user)
-	appEnv.Render.JSON(w, http.StatusCreated, user)
-}
-
-// UpdateUserHandler updates a user object
-func UpdateUserHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
-	decoder := json.NewDecoder(req.Body)
-	var u models.User
-	err := decoder.Decode(&u)
-	if err != nil {
-		response := status.Response{
-			Status:  strconv.Itoa(http.StatusBadRequest),
-			Message: "malformed user object",
-		}
-		log.WithFields(log.Fields{
-			"env":    appEnv.Env,
-			"status": http.StatusBadRequest,
-		}).Error("malformed user object")
-		appEnv.Render.JSON(w, http.StatusBadRequest, response)
-		return
-	}
-	user := models.User{
-		ID:              u.ID,
-		FirstName:       u.FirstName,
-		LastName:        u.LastName,
-		DateOfBirth:     u.DateOfBirth,
-		LocationOfBirth: u.LocationOfBirth,
-	}
-	user, err = appEnv.UserStore.UpdateUser(user)
-	if err != nil {
-		response := status.Response{
-			Status:  strconv.Itoa(http.StatusInternalServerError),
-			Message: "something went wrong",
-		}
-		log.WithFields(log.Fields{
-			"env":    appEnv.Env,
-			"status": http.StatusInternalServerError,
-		}).Error("something went wrong")
-		appEnv.Render.JSON(w, http.StatusInternalServerError, response)
-		return
-	}
-	appEnv.Render.JSON(w, http.StatusOK, user)
-}
-
-// DeleteUserHandler deletes a user
-func DeleteUserHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
-	vars := mux.Vars(req)
-	uid, _ := strconv.Atoi(vars["uid"])
-	err := appEnv.UserStore.DeleteUser(uid)
-	if err != nil {
-		response := status.Response{
-			Status:  strconv.Itoa(http.StatusInternalServerError),
-			Message: "something went wrong",
-		}
-		log.WithFields(log.Fields{
-			"env":    appEnv.Env,
-			"status": http.StatusInternalServerError,
-		}).Error("something went wrong")
-		appEnv.Render.JSON(w, http.StatusInternalServerError, response)
-		return
-	}
-	appEnv.Render.Text(w, http.StatusNoContent, "")
-}
-
-// PassportsHandler not implemented yet
-func PassportsHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
-	log.WithFields(log.Fields{
-		"env":    appEnv.Env,
-		"status": http.StatusInternalServerError,
-	}).Error("Handling Passports - Not implemented yet")
-	appEnv.Render.Text(w, http.StatusNotImplemented, "")
 }

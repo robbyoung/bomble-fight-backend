@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	if "LOCAL" == strings.ToUpper(os.Getenv("ENV")) {
+	if strings.ToUpper(os.Getenv("ENV")) == "LOCAL" {
 		log.SetFormatter(&log.TextFormatter{})
 		log.SetLevel(log.DebugLevel)
 	} else {
@@ -50,18 +50,16 @@ func main() {
 	// ===========================================================================
 	// Initialise data storage
 	// ===========================================================================
-	userStore := bomble.NewUserService(bomble.CreateMockDataSet())
 	betStore := bomble.NewBetService(bomble.CreateMockBets())
 	// ===========================================================================
 	// Initialise application context
 	// ===========================================================================
 	appEnv := bomble.AppEnv{
-		Render:    render.New(),
-		Version:   version,
-		Env:       env,
-		Port:      port,
-		UserStore: userStore,
-		BetStore:  betStore,
+		Render:   render.New(),
+		Version:  version,
+		Env:      env,
+		Port:     port,
+		BetStore: betStore,
 	}
 	// ===========================================================================
 	// Start application
