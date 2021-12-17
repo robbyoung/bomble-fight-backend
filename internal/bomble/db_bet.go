@@ -1,7 +1,7 @@
-package passport
+package bomble
 
 import (
-	"github.com/leeprovoost/go-rest-api-template/internal/passport/models"
+	"bomble-fight/internal/bomble/models"
 )
 
 // Compile-time proof of interface implementation

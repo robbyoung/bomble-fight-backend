@@ -1,4 +1,4 @@
-module github.com/leeprovoost/go-rest-api-template
+module bomble-fight
 
 go 1.15
 

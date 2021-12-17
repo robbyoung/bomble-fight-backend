@@ -1,14 +1,16 @@
-package passport
+package bomble
 
 import (
 	"encoding/json"
 	"net/http"
 	"strconv"
 
+	models "bomble-fight/internal/bomble/models"
+
+	"bomble-fight/pkg/health"
+	"bomble-fight/pkg/status"
+
 	"github.com/gorilla/mux"
-	models "github.com/leeprovoost/go-rest-api-template/internal/passport/models"
-	"github.com/leeprovoost/go-rest-api-template/pkg/health"
-	"github.com/leeprovoost/go-rest-api-template/pkg/status"
 	log "github.com/sirupsen/logrus"
 )
 

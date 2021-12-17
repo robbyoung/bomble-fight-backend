@@ -1,10 +1,11 @@
-package passport
+package bomble
 
 import (
 	"testing"
 	"time"
 
-	"github.com/leeprovoost/go-rest-api-template/internal/passport/models"
+	"bomble-fight/internal/bomble/models"
+
 	"github.com/stretchr/testify/assert"
 )
 

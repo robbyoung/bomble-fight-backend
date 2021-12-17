@@ -4,8 +4,9 @@ import (
 	"os"
 	"strings"
 
-	passport "github.com/leeprovoost/go-rest-api-template/internal/passport"
-	vparse "github.com/leeprovoost/go-rest-api-template/pkg/version"
+	bomble "bomble-fight/internal/bomble"
+	vparse "bomble-fight/pkg/version"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/unrolled/render"
 )
@@ -49,12 +50,12 @@ func main() {
 	// ===========================================================================
 	// Initialise data storage
 	// ===========================================================================
-	userStore := passport.NewUserService(passport.CreateMockDataSet())
-	betStore := passport.NewBetService(passport.CreateMockBets())
+	userStore := bomble.NewUserService(bomble.CreateMockDataSet())
+	betStore := bomble.NewBetService(bomble.CreateMockBets())
 	// ===========================================================================
 	// Initialise application context
 	// ===========================================================================
-	appEnv := passport.AppEnv{
+	appEnv := bomble.AppEnv{
 		Render:    render.New(),
 		Version:   version,
 		Env:       env,
@@ -65,5 +66,5 @@ func main() {
 	// ===========================================================================
 	// Start application
 	// ===========================================================================
-	passport.StartServer(appEnv)
+	bomble.StartServer(appEnv)
 }
