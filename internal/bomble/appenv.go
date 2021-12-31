@@ -8,12 +8,11 @@ import (
 
 // AppEnv holds application configuration data
 type AppEnv struct {
-	Render      *render.Render
-	Version     string
-	Env         string
-	Port        string
-	PlayerStore models.PlayerStorage
-	BetStore    models.BetStorage
+	Render    *render.Render
+	Version   string
+	Env       string
+	Port      string
+	GameStore models.GameStorage
 }
 
 // CreateContextForTestSetup initialises an application context struct
@@ -21,11 +20,11 @@ type AppEnv struct {
 func CreateContextForTestSetup() AppEnv {
 	testVersion := "0.0.0"
 	appEnv := AppEnv{
-		Render:   render.New(),
-		Version:  testVersion,
-		Env:      "LOCAL",
-		Port:     "3001",
-		BetStore: NewBetService(CreateMockBets()),
+		Render:    render.New(),
+		Version:   testVersion,
+		Env:       "LOCAL",
+		Port:      "3001",
+		GameStore: NewGameService(),
 	}
 	return appEnv
 }

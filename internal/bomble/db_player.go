@@ -28,7 +28,7 @@ func (service *PlayerService) GetPlayers() ([]models.Player, error) {
 
 func (service *PlayerService) AddPlayer(p models.Player) (models.Player, error) {
 	service.MaxPlayerID = service.MaxPlayerID + 1
-	p.Id = service.MaxPlayerID
+	p.Id = ""
 	service.PlayerList[service.MaxPlayerID] = p
 	return p, nil
 }
@@ -36,7 +36,7 @@ func (service *PlayerService) AddPlayer(p models.Player) (models.Player, error) 
 func CreateMockPlayers() (map[int]models.Player, int) {
 	list := make(map[int]models.Player)
 	list[0] = models.Player{
-		Id:    0,
+		Id:    "",
 		Name:  "Wallace",
 		Money: 50,
 	}

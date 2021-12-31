@@ -1,15 +1,13 @@
 package bomble
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 
-	"bomble-fight/internal/bomble/models"
 	"bomble-fight/pkg/health"
 	"bomble-fight/pkg/status"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/gorilla/mux"
 )
 
 // HandlerFunc is a custom implementation of the http.HandlerFunc
@@ -36,62 +34,76 @@ func HealthcheckHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv)
 	appEnv.Render.JSON(w, http.StatusOK, check)
 }
 
-func AddPlayerHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
-	decoder := json.NewDecoder(req.Body)
-	var p models.Player
-	err := decoder.Decode(&p)
-	if err != nil {
-		response := status.Response{
-			Status:  strconv.Itoa(http.StatusBadRequest),
-			Message: "malformed player object",
-		}
-		log.WithFields(log.Fields{
-			"env":    appEnv.Env,
-			"status": http.StatusBadRequest,
-		}).Error("malformed player object")
-		appEnv.Render.JSON(w, http.StatusBadRequest, response)
-		return
-	}
-	p, _ = appEnv.PlayerStore.AddPlayer(p)
-	appEnv.Render.JSON(w, http.StatusCreated, p)
-}
-
-func GetPlayersHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
-	list, err := appEnv.PlayerStore.GetPlayers()
+func GetUserStateHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	vars := mux.Vars(req)
+	state, err := appEnv.GameStore.GetUserState(vars["id"])
 	if err != nil {
 		response := status.Response{
 			Status:  strconv.Itoa(http.StatusNotFound),
-			Message: "can't find any players",
+			Message: err.Error(),
 		}
-		log.WithFields(log.Fields{
-			"env":    appEnv.Env,
-			"status": http.StatusNotFound,
-		}).Error("Can't find any players")
 		appEnv.Render.JSON(w, http.StatusNotFound, response)
 		return
 	}
-	responseObject := make(map[string]interface{})
-	responseObject["players"] = list
-	responseObject["count"] = len(list)
-	appEnv.Render.JSON(w, http.StatusOK, responseObject)
+	appEnv.Render.JSON(w, http.StatusOK, state)
 }
 
-func GetBetsHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
-	list, err := appEnv.BetStore.GetBets()
-	if err != nil {
-		response := status.Response{
-			Status:  strconv.Itoa(http.StatusNotFound),
-			Message: "can't find any bets",
-		}
-		log.WithFields(log.Fields{
-			"env":    appEnv.Env,
-			"status": http.StatusNotFound,
-		}).Error("Can't find any bets")
-		appEnv.Render.JSON(w, http.StatusNotFound, response)
-		return
-	}
-	responseObject := make(map[string]interface{})
-	responseObject["bets"] = list
-	responseObject["count"] = len(list)
-	appEnv.Render.JSON(w, http.StatusOK, responseObject)
-}
+// func AddPlayerHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+// 	decoder := json.NewDecoder(req.Body)
+// 	var p models.Player
+// 	err := decoder.Decode(&p)
+// 	if err != nil {
+// 		response := status.Response{
+// 			Status:  strconv.Itoa(http.StatusBadRequest),
+// 			Message: "malformed player object",
+// 		}
+// 		log.WithFields(log.Fields{
+// 			"env":    appEnv.Env,
+// 			"status": http.StatusBadRequest,
+// 		}).Error("malformed player object")
+// 		appEnv.Render.JSON(w, http.StatusBadRequest, response)
+// 		return
+// 	}
+// 	p, _ = appEnv.PlayerStore.AddPlayer(p)
+// 	appEnv.Render.JSON(w, http.StatusCreated, p)
+// }
+
+// func GetPlayersHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+// 	list, err := appEnv.PlayerStore.GetPlayers()
+// 	if err != nil {
+// 		response := status.Response{
+// 			Status:  strconv.Itoa(http.StatusNotFound),
+// 			Message: "can't find any players",
+// 		}
+// 		log.WithFields(log.Fields{
+// 			"env":    appEnv.Env,
+// 			"status": http.StatusNotFound,
+// 		}).Error("Can't find any players")
+// 		appEnv.Render.JSON(w, http.StatusNotFound, response)
+// 		return
+// 	}
+// 	responseObject := make(map[string]interface{})
+// 	responseObject["players"] = list
+// 	responseObject["count"] = len(list)
+// 	appEnv.Render.JSON(w, http.StatusOK, responseObject)
+// }
+
+// func GetBetsHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+// 	list, err := appEnv.BetStore.GetBets()
+// 	if err != nil {
+// 		response := status.Response{
+// 			Status:  strconv.Itoa(http.StatusNotFound),
+// 			Message: "can't find any bets",
+// 		}
+// 		log.WithFields(log.Fields{
+// 			"env":    appEnv.Env,
+// 			"status": http.StatusNotFound,
+// 		}).Error("Can't find any bets")
+// 		appEnv.Render.JSON(w, http.StatusNotFound, response)
+// 		return
+// 	}
+// 	responseObject := make(map[string]interface{})
+// 	responseObject["bets"] = list
+// 	responseObject["count"] = len(list)
+// 	appEnv.Render.JSON(w, http.StatusOK, responseObject)
+// }

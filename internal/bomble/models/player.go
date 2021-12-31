@@ -1,7 +1,7 @@
 package models
 
 type Player struct {
-	Id    int
+	Id    string
 	Name  string
 	Money int
 }
