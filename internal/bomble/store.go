@@ -14,12 +14,6 @@ type GameService struct {
 func NewGameService() models.GameStorage {
 	players := make(map[string]models.Player)
 
-	players["test"] = models.Player{
-		Id:    "test",
-		Name:  "Test Player",
-		Money: 200,
-	}
-
 	return &GameService{
 		GameState: models.Game{
 			Players: players,
@@ -38,4 +32,17 @@ func (service *GameService) GetUserState(id string) (models.UserState, error) {
 	}
 
 	return models.UserState{}, errors.New("player data not found")
+}
+
+func (service *GameService) AddPlayer(p models.Player) (models.Player, error) {
+	service.GameState.Players[p.Id] = p
+	return p, nil
+}
+
+func (service *GameService) ListPlayers() ([]models.Player, error) {
+	var list []models.Player
+	for _, p := range service.GameState.Players {
+		list = append(list, p)
+	}
+	return list, nil
 }
