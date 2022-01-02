@@ -50,16 +50,16 @@ func main() {
 	// ===========================================================================
 	// Initialise data storage
 	// ===========================================================================
-	betStore := bomble.NewBetService(bomble.CreateMockBets())
+	store := bomble.NewGameService()
 	// ===========================================================================
 	// Initialise application context
 	// ===========================================================================
 	appEnv := bomble.AppEnv{
-		Render:   render.New(),
-		Version:  version,
-		Env:      env,
-		Port:     port,
-		BetStore: betStore,
+		Render:    render.New(),
+		Version:   version,
+		Env:       env,
+		Port:      port,
+		GameStore: store,
 	}
 	// ===========================================================================
 	// Start application
