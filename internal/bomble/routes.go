@@ -16,4 +16,5 @@ var routes = Routes{
 	Route{"GetUserState", "GET", "/state/{id:.+}", GetUserStateHandler},
 	Route{"AddPlayer", "POST", "/player", AddPlayerHandler},
 	Route{"ListPlayers", "GET", "/players", ListPlayersHandler},
+	Route{"ListCombatants", "GET", "/combatants", ListCombatantsHandler},
 }

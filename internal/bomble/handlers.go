@@ -81,3 +81,19 @@ func ListPlayersHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv)
 	responseObject["count"] = len(list)
 	appEnv.Render.JSON(w, http.StatusOK, responseObject)
 }
+
+func ListCombatantsHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	list, err := appEnv.GameStore.ListCombatants()
+	if err != nil {
+		response := status.Response{
+			Status:  strconv.Itoa(http.StatusNotFound),
+			Message: "can't find any combatants",
+		}
+		appEnv.Render.JSON(w, http.StatusNotFound, response)
+		return
+	}
+	responseObject := make(map[string]interface{})
+	responseObject["combatants"] = list
+	responseObject["count"] = len(list)
+	appEnv.Render.JSON(w, http.StatusOK, responseObject)
+}

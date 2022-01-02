@@ -12,14 +12,24 @@ type GameService struct {
 }
 
 func NewGameService() models.GameStorage {
-	players := make(map[string]models.Player)
-
-	return &GameService{
+	service := GameService{
 		GameState: models.Game{
-			Players: players,
-			Bets:    make(map[string]models.Bet),
+			Players:    make(map[string]models.Player),
+			Combatants: make(map[string]models.Combatant),
+			Bets:       make(map[string]models.Bet),
 		},
 	}
+
+	c1 := models.NewCombatant()
+	c2 := models.NewCombatant()
+	service.GameState.Combatants[c1.Id] = c1
+	service.GameState.Combatants[c2.Id] = c2
+
+	return &service
+}
+
+func (service *GameService) PopulateCombatants() {
+
 }
 
 func (service *GameService) GetUserState(id string) (models.UserState, error) {
@@ -43,6 +53,14 @@ func (service *GameService) ListPlayers() ([]models.Player, error) {
 	var list []models.Player
 	for _, p := range service.GameState.Players {
 		list = append(list, p)
+	}
+	return list, nil
+}
+
+func (service *GameService) ListCombatants() ([]models.Combatant, error) {
+	var list []models.Combatant
+	for _, c := range service.GameState.Combatants {
+		list = append(list, c)
 	}
 	return list, nil
 }

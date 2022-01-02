@@ -19,12 +19,14 @@ type UserState struct {
 }
 
 type Game struct {
-	Players map[string]Player
-	Bets    map[string]Bet
+	Players    map[string]Player
+	Combatants map[string]Combatant
+	Bets       map[string]Bet
 }
 
 type GameStorage interface {
 	GetUserState(id string) (UserState, error)
 	AddPlayer(p Player) (Player, error)
 	ListPlayers() ([]Player, error)
+	ListCombatants() ([]Combatant, error)
 }
