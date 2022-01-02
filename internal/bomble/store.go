@@ -49,6 +49,11 @@ func (service *GameService) AddPlayer(p models.Player) (models.Player, error) {
 	return p, nil
 }
 
+func (service *GameService) AddBet(b models.Bet) (models.Bet, error) {
+	service.GameState.Bets[b.PlayerId] = b
+	return b, nil
+}
+
 func (service *GameService) ListPlayers() ([]models.Player, error) {
 	var list []models.Player
 	for _, p := range service.GameState.Players {

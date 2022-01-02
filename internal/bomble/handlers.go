@@ -66,6 +66,22 @@ func AddPlayerHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
 	appEnv.Render.JSON(w, http.StatusCreated, p)
 }
 
+func AddBetHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	decoder := json.NewDecoder(req.Body)
+	var b models.Bet
+	err := decoder.Decode(&b)
+	if err != nil {
+		response := status.Response{
+			Status:  strconv.Itoa(http.StatusBadRequest),
+			Message: "malformed bet object",
+		}
+		appEnv.Render.JSON(w, http.StatusBadRequest, response)
+		return
+	}
+	b, _ = appEnv.GameStore.AddBet(b)
+	appEnv.Render.JSON(w, http.StatusCreated, b)
+}
+
 func ListPlayersHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
 	list, err := appEnv.GameStore.ListPlayers()
 	if err != nil {

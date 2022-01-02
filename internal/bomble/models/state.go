@@ -7,7 +7,6 @@ type Player struct {
 }
 
 type Bet struct {
-	Id          int
 	PlayerId    string
 	CombatantId string
 	Amount      int
@@ -27,6 +26,7 @@ type Game struct {
 type GameStorage interface {
 	GetUserState(id string) (UserState, error)
 	AddPlayer(p Player) (Player, error)
+	AddBet(b Bet) (Bet, error)
 	ListPlayers() ([]Player, error)
 	ListCombatants() ([]Combatant, error)
 }
