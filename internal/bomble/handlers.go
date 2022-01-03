@@ -66,6 +66,32 @@ func AddPlayerHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
 	appEnv.Render.JSON(w, http.StatusCreated, p)
 }
 
+func AddBetHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	decoder := json.NewDecoder(req.Body)
+	var b models.Bet
+	err := decoder.Decode(&b)
+	if err != nil {
+		response := status.Response{
+			Status:  strconv.Itoa(http.StatusBadRequest),
+			Message: "malformed bet object",
+		}
+		appEnv.Render.JSON(w, http.StatusBadRequest, response)
+		return
+	}
+
+	b, err = appEnv.GameStore.AddBet(b)
+	if err != nil {
+		response := status.Response{
+			Status:  strconv.Itoa(http.StatusBadRequest),
+			Message: err.Error(),
+		}
+		appEnv.Render.JSON(w, http.StatusBadRequest, response)
+		return
+	}
+
+	appEnv.Render.JSON(w, http.StatusCreated, b)
+}
+
 func ListPlayersHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
 	list, err := appEnv.GameStore.ListPlayers()
 	if err != nil {
@@ -78,6 +104,22 @@ func ListPlayersHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv)
 	}
 	responseObject := make(map[string]interface{})
 	responseObject["players"] = list
+	responseObject["count"] = len(list)
+	appEnv.Render.JSON(w, http.StatusOK, responseObject)
+}
+
+func ListCombatantsHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	list, err := appEnv.GameStore.ListCombatants()
+	if err != nil {
+		response := status.Response{
+			Status:  strconv.Itoa(http.StatusNotFound),
+			Message: "can't find any combatants",
+		}
+		appEnv.Render.JSON(w, http.StatusNotFound, response)
+		return
+	}
+	responseObject := make(map[string]interface{})
+	responseObject["combatants"] = list
 	responseObject["count"] = len(list)
 	appEnv.Render.JSON(w, http.StatusOK, responseObject)
 }
