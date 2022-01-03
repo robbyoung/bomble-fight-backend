@@ -78,7 +78,17 @@ func AddBetHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
 		appEnv.Render.JSON(w, http.StatusBadRequest, response)
 		return
 	}
-	b, _ = appEnv.GameStore.AddBet(b)
+
+	b, err = appEnv.GameStore.AddBet(b)
+	if err != nil {
+		response := status.Response{
+			Status:  strconv.Itoa(http.StatusBadRequest),
+			Message: err.Error(),
+		}
+		appEnv.Render.JSON(w, http.StatusBadRequest, response)
+		return
+	}
+
 	appEnv.Render.JSON(w, http.StatusCreated, b)
 }
 

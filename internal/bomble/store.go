@@ -50,6 +50,14 @@ func (service *GameService) AddPlayer(p models.Player) (models.Player, error) {
 }
 
 func (service *GameService) AddBet(b models.Bet) (models.Bet, error) {
+	if _, ok := service.GameState.Players[b.PlayerId]; !ok {
+		return models.Bet{}, errors.New("not a valid player id")
+	}
+
+	if _, ok := service.GameState.Combatants[b.CombatantId]; !ok {
+		return models.Bet{}, errors.New("not a valid combatant id")
+	}
+
 	service.GameState.Bets[b.PlayerId] = b
 	return b, nil
 }
