@@ -19,8 +19,9 @@ type UserState struct {
 
 type Game struct {
 	Players    map[string]Player
-	Combatants map[string]Combatant
+	Combatants []Combatant
 	Bets       map[string]Bet
+	Fight      FightStep
 }
 
 type GameStorage interface {
@@ -29,4 +30,6 @@ type GameStorage interface {
 	AddBet(b Bet) (Bet, error)
 	ListPlayers() ([]Player, error)
 	ListCombatants() ([]Combatant, error)
+	GetFightStatus() (FightStatus, error)
+	GetFightStep() (FightStep, error)
 }

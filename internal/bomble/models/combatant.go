@@ -10,6 +10,7 @@ import (
 type Combatant struct {
 	Id     string
 	Name   string
+	Health int
 	Streak int
 }
 
