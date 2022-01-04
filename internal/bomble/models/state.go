@@ -13,15 +13,18 @@ type Bet struct {
 }
 
 type UserState struct {
-	Player Player
-	Bet    Bet
+	Player      Player
+	Bet         Bet
+	FightStatus FightStatus
 }
 
 type Game struct {
-	Players    map[string]Player
-	Combatants []Combatant
-	Bets       map[string]Bet
-	Fight      FightStep
+	Players     map[string]Player
+	Combatants  map[string]Combatant
+	Bets        map[string]Bet
+	Fight       FightStep
+	PlayerCount int
+	BetCount    int
 }
 
 type GameStorage interface {

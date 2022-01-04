@@ -123,3 +123,8 @@ func ListCombatantsHandler(w http.ResponseWriter, req *http.Request, appEnv AppE
 	responseObject["count"] = len(list)
 	appEnv.Render.JSON(w, http.StatusOK, responseObject)
 }
+
+func FightStepHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	step, _ := appEnv.GameStore.GetFightStep()
+	appEnv.Render.JSON(w, http.StatusOK, step)
+}

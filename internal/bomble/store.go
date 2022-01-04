@@ -12,15 +12,22 @@ type GameService struct {
 }
 
 func NewGameService() models.GameStorage {
-	return &GameService{
+	service := GameService{
 		GameState: models.Game{
-			Players: make(map[string]models.Player),
-			Combatants: []models.Combatant{
-				models.NewCombatant(),
-				models.NewCombatant()},
-			Bets: make(map[string]models.Bet),
+			Players:    make(map[string]models.Player),
+			Combatants: make(map[string]models.Combatant),
+			Bets:       make(map[string]models.Bet),
 		},
 	}
+
+	c1 := models.NewCombatant()
+	c2 := models.NewCombatant()
+	service.GameState.Combatants[c1.Id] = c1
+	service.GameState.Combatants[c2.Id] = c2
+
+	service.SetupFight(c1.Id, c2.Id)
+
+	return &service
 }
 
 func (service *GameService) PopulateCombatants() {
@@ -31,8 +38,9 @@ func (service *GameService) GetUserState(id string) (models.UserState, error) {
 	if p, ok := service.GameState.Players[id]; ok {
 		b := service.GameState.Bets[id]
 		return models.UserState{
-			Player: p,
-			Bet:    b,
+			Player:      p,
+			Bet:         b,
+			FightStatus: service.GameState.Fight.FightStatus,
 		}, nil
 	}
 
@@ -41,6 +49,7 @@ func (service *GameService) GetUserState(id string) (models.UserState, error) {
 
 func (service *GameService) AddPlayer(p models.Player) (models.Player, error) {
 	service.GameState.Players[p.Id] = p
+	service.GameState.PlayerCount++
 	return p, nil
 }
 
@@ -49,12 +58,17 @@ func (service *GameService) AddBet(b models.Bet) (models.Bet, error) {
 		return models.Bet{}, errors.New("not a valid player id")
 	}
 
-	// change this to support the combatant array
-	// if _, ok := service.GameState.Combatants[b.CombatantId]; !ok {
-	// 	return models.Bet{}, errors.New("not a valid combatant id")
-	// }
+	if _, ok := service.GameState.Combatants[b.CombatantId]; !ok {
+		return models.Bet{}, errors.New("not a valid combatant id")
+	}
 
 	service.GameState.Bets[b.PlayerId] = b
+
+	service.GameState.BetCount++
+	if service.GameState.BetCount == service.GameState.PlayerCount {
+		service.StartFight()
+	}
+
 	return b, nil
 }
 

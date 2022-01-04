@@ -36,6 +36,7 @@ func NewCombatant() Combatant {
 	return Combatant{
 		Id:     strings.ToLower(id),
 		Name:   n,
+		Health: 50,
 		Streak: 0,
 	}
 }
