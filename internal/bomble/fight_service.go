@@ -44,6 +44,7 @@ func (service *GameService) progressFight() {
 
 	status := models.Active
 	if currentStep.AttackerHealth-dd <= 0 || currentStep.DefenderHealth-ad <= 0 {
+		service.resolveBets()
 		status = models.Finished
 	}
 
@@ -56,6 +57,24 @@ func (service *GameService) progressFight() {
 		DefenderDamage: dd,
 		FightStatus:    status,
 	}
+}
+
+func (service *GameService) resolveBets() {
+	fight := service.GameState.Fight
+	winnerId := fight.AttackerId
+	if fight.AttackerHealth == 0 {
+		winnerId = fight.DefenderId
+	}
+
+	for _, b := range service.GameState.Bets {
+		if b.CombatantId == winnerId {
+			updatedPlayer := service.GameState.Players[b.PlayerId]
+			updatedPlayer.Money = updatedPlayer.Money + b.Amount*2
+			service.GameState.Players[b.PlayerId] = updatedPlayer
+		}
+	}
+
+	service.GameState.Bets = make(map[string]models.Bet)
 }
 
 func (service *GameService) getDamage() int {

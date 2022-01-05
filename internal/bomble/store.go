@@ -54,6 +54,10 @@ func (service *GameService) AddPlayer(p models.Player) (models.Player, error) {
 }
 
 func (service *GameService) AddBet(b models.Bet) (models.Bet, error) {
+	if _, ok := service.GameState.Bets[b.PlayerId]; ok {
+		return models.Bet{}, errors.New("this player already has a bet placed")
+	}
+
 	if _, ok := service.GameState.Players[b.PlayerId]; !ok {
 		return models.Bet{}, errors.New("not a valid player id")
 	}
@@ -63,6 +67,10 @@ func (service *GameService) AddBet(b models.Bet) (models.Bet, error) {
 	}
 
 	service.GameState.Bets[b.PlayerId] = b
+
+	updatedPlayer := service.GameState.Players[b.PlayerId]
+	updatedPlayer.Money = updatedPlayer.Money - b.Amount
+	service.GameState.Players[b.PlayerId] = updatedPlayer
 
 	service.GameState.BetCount++
 	if service.GameState.BetCount == service.GameState.PlayerCount {
