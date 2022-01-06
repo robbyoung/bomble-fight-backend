@@ -18,7 +18,7 @@ type AppEnv struct {
 // CreateContextForTestSetup initialises an application context struct
 // for testing purposes
 func CreateContextForTestSetup() AppEnv {
-	testVersion := "0.0.0"
+	testVersion := "0.1.0"
 	appEnv := AppEnv{
 		Render:    render.New(),
 		Version:   testVersion,
