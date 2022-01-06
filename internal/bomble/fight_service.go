@@ -33,6 +33,16 @@ func (service *GameService) StartFight() {
 	service.GameState.Fight.FightStatus = models.Starting
 }
 
+func (service *GameService) ResetFight() {
+	service.GameState.Combatants = make(map[string]models.Combatant)
+	c1 := models.NewCombatant()
+	c2 := models.NewCombatant()
+	service.GameState.Combatants[c1.Id] = c1
+	service.GameState.Combatants[c2.Id] = c2
+
+	service.SetupFight(c1.Id, c2.Id)
+}
+
 func (service *GameService) progressFight() {
 	var currentStep = service.GameState.Fight
 	if currentStep.FightStatus == models.Pending || currentStep.FightStatus == models.Finished {
@@ -69,12 +79,13 @@ func (service *GameService) resolveBets() {
 	for _, b := range service.GameState.Bets {
 		if b.CombatantId == winnerId {
 			updatedPlayer := service.GameState.Players[b.PlayerId]
-			updatedPlayer.Money = updatedPlayer.Money + b.Amount*2
+			updatedPlayer.Money = updatedPlayer.Money + (b.Amount * 2)
 			service.GameState.Players[b.PlayerId] = updatedPlayer
 		}
 	}
 
 	service.GameState.Bets = make(map[string]models.Bet)
+	service.GameState.BetCount = 0
 }
 
 func (service *GameService) getDamage() int {

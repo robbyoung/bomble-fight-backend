@@ -35,4 +35,5 @@ type GameStorage interface {
 	ListCombatants() ([]Combatant, error)
 	GetFightStatus() (FightStatus, error)
 	GetFightStep() (FightStep, error)
+	ResetFight()
 }

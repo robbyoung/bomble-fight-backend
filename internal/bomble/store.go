@@ -48,6 +48,10 @@ func (service *GameService) GetUserState(id string) (models.UserState, error) {
 }
 
 func (service *GameService) AddPlayer(p models.Player) (models.Player, error) {
+	if _, ok := service.GameState.Players[p.Id]; ok {
+		return models.Player{}, errors.New("this player has already been created")
+	}
+
 	service.GameState.Players[p.Id] = p
 	service.GameState.PlayerCount++
 	return p, nil

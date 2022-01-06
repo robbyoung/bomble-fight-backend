@@ -18,5 +18,6 @@ var routes = Routes{
 	Route{"AddBet", "POST", "/bet", AddBetHandler},
 	Route{"ListPlayers", "GET", "/players", ListPlayersHandler},
 	Route{"ListCombatants", "GET", "/combatants", ListCombatantsHandler},
-	Route{"GetFightStep", "GET", "/fight", FightStepHandler},
+	Route{"GetFightStep", "POST", "/fight", FightStepHandler},
+	Route{"ResetFight", "POST", "/reset", ResetFightHandler},
 }
