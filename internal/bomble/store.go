@@ -25,6 +25,8 @@ func NewGameService() models.GameStorage {
 	service.GameState.Combatants[c1.Id] = c1
 	service.GameState.Combatants[c2.Id] = c2
 
+	service.SetupFight(c1.Id, c2.Id)
+
 	return &service
 }
 
@@ -36,8 +38,9 @@ func (service *GameService) GetUserState(id string) (models.UserState, error) {
 	if p, ok := service.GameState.Players[id]; ok {
 		b := service.GameState.Bets[id]
 		return models.UserState{
-			Player: p,
-			Bet:    b,
+			Player:      p,
+			Bet:         b,
+			FightStatus: service.GameState.Fight.FightStatus,
 		}, nil
 	}
 
@@ -45,11 +48,20 @@ func (service *GameService) GetUserState(id string) (models.UserState, error) {
 }
 
 func (service *GameService) AddPlayer(p models.Player) (models.Player, error) {
+	if _, ok := service.GameState.Players[p.Id]; ok {
+		return models.Player{}, errors.New("this player has already been created")
+	}
+
 	service.GameState.Players[p.Id] = p
+	service.GameState.PlayerCount++
 	return p, nil
 }
 
 func (service *GameService) AddBet(b models.Bet) (models.Bet, error) {
+	if _, ok := service.GameState.Bets[b.PlayerId]; ok {
+		return models.Bet{}, errors.New("this player already has a bet placed")
+	}
+
 	if _, ok := service.GameState.Players[b.PlayerId]; !ok {
 		return models.Bet{}, errors.New("not a valid player id")
 	}
@@ -59,6 +71,16 @@ func (service *GameService) AddBet(b models.Bet) (models.Bet, error) {
 	}
 
 	service.GameState.Bets[b.PlayerId] = b
+
+	updatedPlayer := service.GameState.Players[b.PlayerId]
+	updatedPlayer.Money = updatedPlayer.Money - b.Amount
+	service.GameState.Players[b.PlayerId] = updatedPlayer
+
+	service.GameState.BetCount++
+	if service.GameState.BetCount == service.GameState.PlayerCount {
+		service.StartFight()
+	}
+
 	return b, nil
 }
 

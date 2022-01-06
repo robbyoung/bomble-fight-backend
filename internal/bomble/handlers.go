@@ -62,7 +62,15 @@ func AddPlayerHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
 		appEnv.Render.JSON(w, http.StatusBadRequest, response)
 		return
 	}
-	p, _ = appEnv.GameStore.AddPlayer(p)
+	p, err = appEnv.GameStore.AddPlayer(p)
+	if err != nil {
+		response := status.Response{
+			Status:  strconv.Itoa(http.StatusBadRequest),
+			Message: err.Error(),
+		}
+		appEnv.Render.JSON(w, http.StatusBadRequest, response)
+		return
+	}
 	appEnv.Render.JSON(w, http.StatusCreated, p)
 }
 
@@ -122,4 +130,14 @@ func ListCombatantsHandler(w http.ResponseWriter, req *http.Request, appEnv AppE
 	responseObject["combatants"] = list
 	responseObject["count"] = len(list)
 	appEnv.Render.JSON(w, http.StatusOK, responseObject)
+}
+
+func FightStepHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	step, _ := appEnv.GameStore.GetFightStep()
+	appEnv.Render.JSON(w, http.StatusOK, step)
+}
+
+func ResetFightHandler(w http.ResponseWriter, req *http.Request, appEnv AppEnv) {
+	appEnv.GameStore.ResetFight()
+	appEnv.Render.JSON(w, http.StatusOK, nil)
 }

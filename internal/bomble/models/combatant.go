@@ -10,6 +10,7 @@ import (
 type Combatant struct {
 	Id     string
 	Name   string
+	Health int
 	Streak int
 }
 
@@ -35,6 +36,7 @@ func NewCombatant() Combatant {
 	return Combatant{
 		Id:     strings.ToLower(id),
 		Name:   n,
+		Health: 50,
 		Streak: 0,
 	}
 }
