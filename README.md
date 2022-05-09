@@ -13,3 +13,10 @@ export PORT=3001
 export FIXTURES=./fixtures.json
 go build && ./api-service
 ```
+
+To run postman collection with Newman, run the following after setting the environment variables:
+
+``` 
+./api-service.exe & newman run bomble.postman.json -e environment.postman.json 
+TASKKILL //F //IM api-service.exe
+```
