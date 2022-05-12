@@ -70,6 +70,14 @@ func (service *GameService) AddBet(b models.Bet) (models.Bet, error) {
 		return models.Bet{}, errors.New("not a valid combatant id")
 	}
 
+	if service.GameState.Players[b.PlayerId].Money < b.Amount {
+		return models.Bet{}, errors.New("this player doesn't have enough money")
+	}
+
+	if b.Amount <= 0 {
+		return models.Bet{}, errors.New("bet amount needs to be greater than zero")
+	}
+
 	service.GameState.Bets[b.PlayerId] = b
 
 	updatedPlayer := service.GameState.Players[b.PlayerId]

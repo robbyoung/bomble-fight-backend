@@ -1,0 +1,688 @@
+{
+	"info": {
+		"_postman_id": "ed234b85-4001-4a9b-8964-1f9110755206",
+		"name": "Bomble Fight",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "MVP Fight (single player)",
+			"item": [
+				{
+					"name": "Create Player",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"if (pm.response.code === 201) {\r",
+									"    pm.test(\"Echoes player fields\", function () {\r",
+									"        pm.expect(jsonData.Id).to.eql(\"player1\");\r",
+									"        pm.expect(jsonData.Name).to.eql(\"Bert\");\r",
+									"        pm.expect(jsonData.Money).to.eql(50);\r",
+									"    });\r",
+									"} else if(pm.response.code === 400) {\r",
+									"    pm.test(\"Returns correct message\", function () {\r",
+									"        pm.expect(jsonData.message).to.eql(\"this player has already been created\");\r",
+									"    });\r",
+									"} else {\r",
+									"    pm.test(\"Returns 201 or 400\", function () {\r",
+									"        pm.expect(pm.response.code).to.be.oneOf([201, 400]);\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"pm.environment.set(\"playerId\", \"player1\");\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"player1\",\r\n    \"name\": \"Bert\",\r\n    \"money\": 50\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/player",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"player"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Combatants",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"pm.environment.set(\"combatantId\", jsonData.combatants[0].Id);\r",
+									"\r",
+									"pm.test(\"Returns 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Lists two combatants\", function () {\r",
+									"    pm.expect(jsonData.combatants.length).to.eql(2);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/combatants",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"combatants"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Initial FightStep",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Returns 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"FightStatus is set to 0\", function () {\r",
+									"    pm.expect(jsonData.FightStatus).to.eql(0);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/fight",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fight"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Bet (Too Low)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 400\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Returns correct error message\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"bet amount needs to be greater than zero\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"playerId\": \"{{playerId}}\",\r\n    \"combatantId\": \"{{combatantId}}\",\r\n    \"amount\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bet",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Bet (Not Enough)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 400\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Returns correct error message\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"this player doesn't have enough money\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"playerId\": \"{{playerId}}\",\r\n    \"combatantId\": \"{{combatantId}}\",\r\n    \"amount\": 130\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bet",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Bet",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var playerId = pm.environment.get(\"playerId\");\r",
+									"var combatantId = pm.environment.get(\"combatantId\");\r",
+									"\r",
+									"pm.test(\"Returns 201\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Lists seven players\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.PlayerId).to.eql(playerId);\r",
+									"    pm.expect(jsonData.CombatantId).to.eql(combatantId);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"playerId\": \"{{playerId}}\",\r\n    \"combatantId\": \"{{combatantId}}\",\r\n    \"amount\": 50\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bet",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Bet (Already Placed)",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var playerId = pm.variables.get(\"playerId\");\r",
+									"var combatantId = pm.variables.get(\"combatantId\");\r",
+									"\r",
+									"pm.test(\"Returns 400\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(400);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Returns correct error message\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.message).to.eql(\"this player already has a bet placed\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"playerId\": \"{{playerId}}\",\r\n    \"combatantId\": \"{{combatantId}}\",\r\n    \"amount\": 50\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/bet",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"bet"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User State After Bet",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Returns 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Player money has been reduced by bet amount\", function () {\r",
+									"    pm.expect(jsonData.Player.Money).to.eql(0);\r",
+									"    pm.expect(jsonData.Bet.Amount).to.eql(50);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"FightStatus is set to 1\", function () {\r",
+									"    pm.expect(jsonData.FightStatus).to.eql(1);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/state/{{playerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"state",
+								"{{playerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fight Started",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Returns 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"FightStatus is set to 1\", function () {\r",
+									"    pm.expect(jsonData.FightStatus).to.eql(1);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Both combatants still have full health\", function () {\r",
+									"    pm.expect(jsonData.AttackerHealth).to.eql(50);\r",
+									"    pm.expect(jsonData.DefenderHealth).to.eql(50);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/fight",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fight"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "First Strike",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Returns 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"FightStatus is set to 2\", function () {\r",
+									"    pm.expect(jsonData.FightStatus).to.eql(2);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"One combatant should have lost health\", function () {\r",
+									"    var healthLost = jsonData.AttackerHealth < 50 || jsonData.DefenderHealth < 50;\r",
+									"    pm.expect(healthLost).to.eql(true);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/fight",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fight"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fight Finished",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Returns 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"FightStatus is set to 3\", function () {\r",
+									"    pm.expect(jsonData.FightStatus).to.eql(3);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"One combatant should have no health\", function () {\r",
+									"    var healthLost = jsonData.AttackerHealth === 0 || jsonData.DefenderHealth === 0;\r",
+									"    pm.expect(healthLost).to.eql(true);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var baseUrl = pm.environment.get(\"baseUrl\");\r",
+									"\r",
+									"function progressFight() {\r",
+									"    pm.sendRequest({\r",
+									"        url: `${baseUrl}/fight`,\r",
+									"        method: 'POST',\r",
+									"    }, function (_err, response) {\r",
+									"        var jsonData = response.json()\r",
+									"        console.log(`FightStatus: ${jsonData.FightStatus}`);\r",
+									"        if (jsonData.FightStatus === 2) {\r",
+									"            progressFight();\r",
+									"        }\r",
+									"    });\r",
+									"}\r",
+									"\r",
+									"progressFight();"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/fight",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"fight"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User State After Fight",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Returns 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});\r",
+									"\r",
+									"// pm.test(\"Player money has been affected by bet\", function () {\r",
+									"//     var moneyUpdated = jsonData.Player.Money === 0 || jsonData.Player.Money === 100;\r",
+									"//     pm.expect(moneyUpdated).to.eql(true);\r",
+									"// });\r",
+									"\r",
+									"pm.test(\"FightStatus is set to 3\", function () {\r",
+									"    pm.expect(jsonData.FightStatus).to.eql(3);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/state/{{playerId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"state",
+								"{{playerId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Fight",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Returns 200\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/reset",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reset"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
