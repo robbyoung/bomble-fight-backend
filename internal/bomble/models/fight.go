@@ -9,12 +9,25 @@ const (
 	Finished FightStatus = 3
 )
 
+type FightAction int
+
+const (
+	Nothing FightAction = 0
+	Jab     FightAction = 1
+	Sweep   FightAction = 2
+	Dodge   FightAction = 3
+	Block   FightAction = 4
+)
+
+type CombatantStatus struct {
+	Id     string
+	Health int
+	Loss   int
+	Action FightAction
+}
+
 type FightStep struct {
-	AttackerId     string
-	DefenderId     string
-	AttackerHealth int
-	DefenderHealth int
-	AttackerDamage int
-	DefenderDamage int
-	FightStatus    FightStatus
+	Left        CombatantStatus
+	Right       CombatantStatus
+	FightStatus FightStatus
 }

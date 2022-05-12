@@ -19,13 +19,21 @@ func (service *GameService) GetFightStatus() (models.FightStatus, error) {
 	return service.GameState.Fight.FightStatus, nil
 }
 
-func (service *GameService) SetupFight(attackerId string, defenderId string) {
+func (service *GameService) SetupFight(idLeft string, idRight string) {
 	service.GameState.Fight = models.FightStep{
-		AttackerId:     attackerId,
-		DefenderId:     defenderId,
-		AttackerHealth: service.GameState.Combatants[attackerId].Health,
-		DefenderHealth: service.GameState.Combatants[attackerId].Health,
-		FightStatus:    models.Pending,
+		Left: models.CombatantStatus{
+			Id:     idLeft,
+			Health: service.GameState.Combatants[idLeft].Health,
+			Loss:   0,
+			Action: 0,
+		},
+		Right: models.CombatantStatus{
+			Id:     idLeft,
+			Health: service.GameState.Combatants[idRight].Health,
+			Loss:   0,
+			Action: 0,
+		},
+		FightStatus: models.Pending,
 	}
 }
 
@@ -49,37 +57,50 @@ func (service *GameService) progressFight() {
 		return
 	}
 
-	ad := int(math.Min(float64(service.getDamage()), float64(currentStep.DefenderHealth)))
-	dd := int(math.Min(float64(service.getDamage()), float64(currentStep.AttackerHealth)))
+	ll := int(math.Min(float64(service.getDamage()), float64(currentStep.Left.Health)))
+	rl := int(math.Min(float64(service.getDamage()), float64(currentStep.Right.Loss)))
 
 	status := models.Active
-	if currentStep.AttackerHealth-dd <= 0 || currentStep.DefenderHealth-ad <= 0 {
+	if currentStep.Left.Health-ll <= 0 || currentStep.Right.Health-rl <= 0 {
 		service.resolveBets()
 		status = models.Finished
 	}
 
 	service.GameState.Fight = models.FightStep{
-		AttackerId:     currentStep.AttackerId,
-		DefenderId:     currentStep.DefenderId,
-		AttackerHealth: currentStep.AttackerHealth - dd,
-		DefenderHealth: currentStep.DefenderHealth - ad,
-		AttackerDamage: ad,
-		DefenderDamage: dd,
-		FightStatus:    status,
+		Left: models.CombatantStatus{
+			Id:     currentStep.Left.Id,
+			Health: currentStep.Left.Health - ll,
+			Loss:   ll,
+			Action: 0,
+		},
+		Right: models.CombatantStatus{
+			Id:     currentStep.Left.Id,
+			Health: currentStep.Right.Health - rl,
+			Loss:   rl,
+			Action: 0,
+		},
+		FightStatus: status,
 	}
 }
 
 func (service *GameService) resolveBets() {
 	fight := service.GameState.Fight
-	winnerId := fight.AttackerId
-	if fight.AttackerHealth == 0 {
-		winnerId = fight.DefenderId
+
+	winnerId := ""
+	if fight.Left.Health > 0 {
+		winnerId = fight.Left.Id
+	} else if fight.Right.Health > 0 {
+		winnerId = fight.Right.Id
 	}
 
 	for _, b := range service.GameState.Bets {
 		if b.CombatantId == winnerId {
 			updatedPlayer := service.GameState.Players[b.PlayerId]
 			updatedPlayer.Money = updatedPlayer.Money + (b.Amount * 2)
+			service.GameState.Players[b.PlayerId] = updatedPlayer
+		} else if winnerId == "" {
+			updatedPlayer := service.GameState.Players[b.PlayerId]
+			updatedPlayer.Money = updatedPlayer.Money + b.Amount
 			service.GameState.Players[b.PlayerId] = updatedPlayer
 		}
 	}
