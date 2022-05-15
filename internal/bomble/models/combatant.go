@@ -12,6 +12,12 @@ type Combatant struct {
 	Name   string
 	Health int
 	Streak int
+
+	Ferocity  int
+	Agility   int
+	Endurance int
+	Skill     int
+	Speed     int
 }
 
 var names = []string{
@@ -38,5 +44,11 @@ func NewCombatant() Combatant {
 		Name:   n,
 		Health: 50,
 		Streak: 0,
+
+		Ferocity:  r.Intn(10) + 1,
+		Endurance: r.Intn(10) + 1,
+		Skill:     r.Intn(10) + 1,
+		Agility:   r.Intn(10) + 1,
+		Speed:     r.Intn(10) + 1,
 	}
 }

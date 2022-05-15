@@ -2,7 +2,6 @@ package bomble
 
 import (
 	"bomble-fight/internal/bomble/models"
-	"math"
 	"math/rand"
 	"time"
 )
@@ -57,11 +56,11 @@ func (service *GameService) progressFight() {
 		return
 	}
 
-	ll := int(math.Min(float64(service.getDamage()), float64(currentStep.Left.Health)))
-	rl := int(math.Min(float64(service.getDamage()), float64(currentStep.Right.Loss)))
+	left, right := service.GameState.Combatants[currentStep.Left.Id], service.GameState.Combatants[currentStep.Right.Id]
+	lAct, lDam, rAct, rDam := service.getDamage(left, right)
 
 	status := models.Active
-	if currentStep.Left.Health-ll <= 0 || currentStep.Right.Health-rl <= 0 {
+	if currentStep.Left.Health-rDam <= 0 || currentStep.Right.Health-lDam <= 0 {
 		service.resolveBets()
 		status = models.Finished
 	}
@@ -69,15 +68,15 @@ func (service *GameService) progressFight() {
 	service.GameState.Fight = models.FightStep{
 		Left: models.CombatantStatus{
 			Id:     currentStep.Left.Id,
-			Health: currentStep.Left.Health - ll,
-			Loss:   ll,
-			Action: 0,
+			Health: currentStep.Left.Health - rDam,
+			Loss:   rDam,
+			Action: lAct,
 		},
 		Right: models.CombatantStatus{
 			Id:     currentStep.Left.Id,
-			Health: currentStep.Right.Health - rl,
-			Loss:   rl,
-			Action: 0,
+			Health: currentStep.Right.Health - lDam,
+			Loss:   lDam,
+			Action: rAct,
 		},
 		FightStatus: status,
 	}
@@ -109,6 +108,41 @@ func (service *GameService) resolveBets() {
 	service.GameState.BetCount = 0
 }
 
-func (service *GameService) getDamage() int {
-	return r.Intn(21) + 5
+func (service *GameService) getDamage(left models.Combatant, right models.Combatant) (models.FightAction, int, models.FightAction, int) {
+	var att, def models.Combatant
+
+	leftAtt := r.Intn(left.Speed+right.Speed) < left.Speed
+	if leftAtt {
+		att = left
+		def = right
+	} else {
+		att = left
+		def = right
+	}
+
+	attAction := models.ActionAttack
+	damage := att.Ferocity*2 + r.Intn(10)
+	if skillCheck(att.Skill) {
+		damage = damage * 2
+		attAction = models.ActionCritical
+	}
+
+	defAction := models.ActionNothing
+	if skillCheck(def.Agility) {
+		defAction = models.ActionDodge
+		damage = 0
+	} else if skillCheck(def.Endurance) {
+		defAction = models.ActionBlock
+		damage = 0
+	}
+
+	if leftAtt {
+		return attAction, damage, defAction, 0
+	} else {
+		return defAction, 0, attAction, damage
+	}
+}
+
+func skillCheck(stat int) bool {
+	return r.Intn(stat+10) > 10
 }

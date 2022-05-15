@@ -12,11 +12,11 @@ const (
 type FightAction int
 
 const (
-	Nothing FightAction = 0
-	Jab     FightAction = 1
-	Sweep   FightAction = 2
-	Dodge   FightAction = 3
-	Block   FightAction = 4
+	ActionNothing  FightAction = 0
+	ActionAttack   FightAction = 1
+	ActionCritical FightAction = 2
+	ActionDodge    FightAction = 3
+	ActionBlock    FightAction = 4
 )
 
 type CombatantStatus struct {
