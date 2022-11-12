@@ -2,7 +2,6 @@ package bomble
 
 import (
 	"bomble-fight/internal/bomble/models"
-	"math"
 	"math/rand"
 	"time"
 )
@@ -19,13 +18,21 @@ func (service *GameService) GetFightStatus() (models.FightStatus, error) {
 	return service.GameState.Fight.FightStatus, nil
 }
 
-func (service *GameService) SetupFight(attackerId string, defenderId string) {
+func (service *GameService) SetupFight(idLeft string, idRight string) {
 	service.GameState.Fight = models.FightStep{
-		AttackerId:     attackerId,
-		DefenderId:     defenderId,
-		AttackerHealth: service.GameState.Combatants[attackerId].Health,
-		DefenderHealth: service.GameState.Combatants[attackerId].Health,
-		FightStatus:    models.Pending,
+		Left: models.CombatantStatus{
+			Id:     idLeft,
+			Health: service.GameState.Combatants[idLeft].Health,
+			Loss:   0,
+			Action: 0,
+		},
+		Right: models.CombatantStatus{
+			Id:     idLeft,
+			Health: service.GameState.Combatants[idRight].Health,
+			Loss:   0,
+			Action: 0,
+		},
+		FightStatus: models.Pending,
 	}
 }
 
@@ -49,37 +56,50 @@ func (service *GameService) progressFight() {
 		return
 	}
 
-	ad := int(math.Min(float64(service.getDamage()), float64(currentStep.DefenderHealth)))
-	dd := int(math.Min(float64(service.getDamage()), float64(currentStep.AttackerHealth)))
+	left, right := service.GameState.Combatants[currentStep.Left.Id], service.GameState.Combatants[currentStep.Right.Id]
+	lAct, lDam, rAct, rDam := service.getDamage(left, right)
 
 	status := models.Active
-	if currentStep.AttackerHealth-dd <= 0 || currentStep.DefenderHealth-ad <= 0 {
+	if currentStep.Left.Health-rDam <= 0 || currentStep.Right.Health-lDam <= 0 {
 		service.resolveBets()
 		status = models.Finished
 	}
 
 	service.GameState.Fight = models.FightStep{
-		AttackerId:     currentStep.AttackerId,
-		DefenderId:     currentStep.DefenderId,
-		AttackerHealth: currentStep.AttackerHealth - dd,
-		DefenderHealth: currentStep.DefenderHealth - ad,
-		AttackerDamage: ad,
-		DefenderDamage: dd,
-		FightStatus:    status,
+		Left: models.CombatantStatus{
+			Id:     currentStep.Left.Id,
+			Health: currentStep.Left.Health - rDam,
+			Loss:   rDam,
+			Action: lAct,
+		},
+		Right: models.CombatantStatus{
+			Id:     currentStep.Left.Id,
+			Health: currentStep.Right.Health - lDam,
+			Loss:   lDam,
+			Action: rAct,
+		},
+		FightStatus: status,
 	}
 }
 
 func (service *GameService) resolveBets() {
 	fight := service.GameState.Fight
-	winnerId := fight.AttackerId
-	if fight.AttackerHealth == 0 {
-		winnerId = fight.DefenderId
+
+	winnerId := ""
+	if fight.Left.Health > 0 {
+		winnerId = fight.Left.Id
+	} else if fight.Right.Health > 0 {
+		winnerId = fight.Right.Id
 	}
 
 	for _, b := range service.GameState.Bets {
 		if b.CombatantId == winnerId {
 			updatedPlayer := service.GameState.Players[b.PlayerId]
 			updatedPlayer.Money = updatedPlayer.Money + (b.Amount * 2)
+			service.GameState.Players[b.PlayerId] = updatedPlayer
+		} else if winnerId == "" {
+			updatedPlayer := service.GameState.Players[b.PlayerId]
+			updatedPlayer.Money = updatedPlayer.Money + b.Amount
 			service.GameState.Players[b.PlayerId] = updatedPlayer
 		}
 	}
@@ -88,6 +108,41 @@ func (service *GameService) resolveBets() {
 	service.GameState.BetCount = 0
 }
 
-func (service *GameService) getDamage() int {
-	return r.Intn(21) + 5
+func (service *GameService) getDamage(left models.Combatant, right models.Combatant) (models.FightAction, int, models.FightAction, int) {
+	var att, def models.Combatant
+
+	leftAtt := r.Intn(left.Speed+right.Speed) < left.Speed
+	if leftAtt {
+		att = left
+		def = right
+	} else {
+		att = left
+		def = right
+	}
+
+	attAction := models.ActionAttack
+	damage := att.Ferocity*2 + r.Intn(10)
+	if skillCheck(att.Skill) {
+		damage = damage * 2
+		attAction = models.ActionCritical
+	}
+
+	defAction := models.ActionNothing
+	if skillCheck(def.Agility) {
+		defAction = models.ActionDodge
+		damage = 0
+	} else if skillCheck(def.Endurance) {
+		defAction = models.ActionBlock
+		damage = 0
+	}
+
+	if leftAtt {
+		return attAction, damage, defAction, 0
+	} else {
+		return defAction, 0, attAction, damage
+	}
+}
+
+func skillCheck(stat int) bool {
+	return r.Intn(stat+10) > 10
 }

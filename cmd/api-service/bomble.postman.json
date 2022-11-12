@@ -434,8 +434,8 @@
 									"});\r",
 									"\r",
 									"pm.test(\"Both combatants still have full health\", function () {\r",
-									"    pm.expect(jsonData.AttackerHealth).to.eql(50);\r",
-									"    pm.expect(jsonData.DefenderHealth).to.eql(50);\r",
+									"    pm.expect(jsonData.Left.Health).to.eql(50);\r",
+									"    pm.expect(jsonData.Right.Health).to.eql(50);\r",
 									"});"
 								],
 								"type": "text/javascript"
@@ -475,7 +475,7 @@
 									"});\r",
 									"\r",
 									"pm.test(\"One combatant should have lost health\", function () {\r",
-									"    var healthLost = jsonData.AttackerHealth < 50 || jsonData.DefenderHealth < 50;\r",
+									"    var healthLost = jsonData.Left.Health < 50 || jsonData.Right.Health < 50;\r",
 									"    pm.expect(healthLost).to.eql(true);\r",
 									"});"
 								],
@@ -525,7 +525,7 @@
 									"});\r",
 									"\r",
 									"pm.test(\"One combatant should have no health\", function () {\r",
-									"    var healthLost = jsonData.AttackerHealth === 0 || jsonData.DefenderHealth === 0;\r",
+									"    var healthLost = jsonData.Left.Health === 0 || jsonData.Right.Health === 0;\r",
 									"    pm.expect(healthLost).to.eql(true);\r",
 									"});"
 								],
